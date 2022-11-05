@@ -1,4 +1,4 @@
-module github.com/ntnbrtnkv/otus-golang/n1
+module github.com/ntnbrtnkv/otus-golang/hello_world
 
 go 1.19
 

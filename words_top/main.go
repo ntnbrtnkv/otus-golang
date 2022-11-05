@@ -1,4 +1,4 @@
-package n3
+package words_top
 
 import (
 	"sort"

@@ -1,4 +1,4 @@
-module github.com/ntnbrtnkv/otus-golang/n2
+module github.com/ntnbrtnkv/otus-golang/unpack
 
 go 1.19
 

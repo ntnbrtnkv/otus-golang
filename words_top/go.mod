@@ -1,4 +1,4 @@
-module github.com/ntnbrtnkv/otus-golang/n3
+module github.com/ntnbrtnkv/otus-golang/words_top
 
 go 1.19
 
