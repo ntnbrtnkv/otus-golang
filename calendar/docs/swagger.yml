@@ -1,0 +1,44 @@
+consumes:
+    - application/json
+info:
+    description: Nothing special about it
+    title: Calendar server
+    version: 1.0.0
+
+produces:
+    - application/json
+schemes:
+    - http
+swagger: "2.0"
+
+definitions:
+  event:
+    type: object
+    properties: 
+        id:
+            type: string
+            readOnly: true
+        title:
+            type: string
+        description:
+            type: string
+        time_start:
+            type: string
+            format: date-time
+        time_end:
+            type: string
+            format: date-time
+
+paths:
+    /create_event:
+        post:
+            parameters:
+                - name: event
+                  in: body
+                  schema:
+                    $ref: "#/definitions/event"
+            summary: Creates event
+            responses:
+              '201':
+                description: created successfully
+        

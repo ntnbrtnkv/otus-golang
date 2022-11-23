@@ -1,17 +1,13 @@
-package main
+package config
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"net/http"
-	"os"
-
 	"github.com/heetch/confita"
 	"github.com/heetch/confita/backend/env"
 	"github.com/heetch/confita/backend/file"
 	"github.com/heetch/confita/backend/flags"
-	"go.uber.org/zap"
+	"os"
 )
 
 type Config struct {
@@ -49,39 +45,4 @@ func ParseConfig() Config {
 	}
 
 	return cfg
-}
-
-func InitLogger(cfg Config) *zap.Logger {
-	rawJSON := []byte(fmt.Sprintf(`{
-		"level": "%s",
-		"encoding": "json",
-		"outputPaths": ["stdout", "%s"],
-		"encoderConfig": {
-			"messageKey": "message",
-			"levelKey": "level",
-			"levelEncoder": "lowercase",
-			"timeKey": "timestamp",
-			"timeEncoder": "iso8601"
-		}
-	  }`, cfg.LogLevel, cfg.LogFile))
-
-	var zcfg zap.Config
-	if err := json.Unmarshal(rawJSON, &zcfg); err != nil {
-		panic(err)
-	}
-	return zap.Must(zcfg.Build())
-}
-
-func main() {
-	cfg := ParseConfig()
-
-	logger := InitLogger(cfg)
-
-	http.HandleFunc("/hello", func(w http.ResponseWriter, r *http.Request) {
-		logger.Debug(fmt.Sprintf("GET /hello %s", r.RemoteAddr))
-		fmt.Fprintln(w, "hello")
-	})
-
-	logger.Info(fmt.Sprintf("Server starting at %s", cfg.HttpListen))
-	http.ListenAndServe(cfg.HttpListen, nil)
 }
