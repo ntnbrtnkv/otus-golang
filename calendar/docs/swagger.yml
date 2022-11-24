@@ -1,44 +1,82 @@
 consumes:
-    - application/json
+  - application/x-www-form-urlencoded
 info:
-    description: Nothing special about it
-    title: Calendar server
-    version: 1.0.0
+  description: Nothing special about it
+  title: Calendar server
+  version: 1.0.0
 
 produces:
-    - application/json
+  - application/json
 schemes:
-    - http
+  - http
 swagger: "2.0"
+
+parameters:
+  eventTitle:
+    name: title
+    in: formData
+    type: string
+    required: true
+  eventDescription:
+    name: description
+    in: formData
+    type: string
+    required: true
+  eventStart:
+    name: time_start
+    in: formData
+    type: string
+    format: date-time
+    required: true
+  eventEnd:
+    name: time_end
+    in: formData
+    type: string
+    format: date-time
+    required: true
 
 definitions:
   event:
     type: object
-    properties: 
-        id:
-            type: string
-            readOnly: true
-        title:
-            type: string
-        description:
-            type: string
-        time_start:
-            type: string
-            format: date-time
-        time_end:
-            type: string
-            format: date-time
+    required:
+      - title
+      - description
+      - time_end
+      - time_start
+    properties:
+      id:
+        type: string
+        readOnly: true
+      title:
+        type: string
+      description:
+        type: string
+      time_start:
+        type: string
+        format: date-time
+      time_end:
+        type: string
+        format: date-time
+  error:
+    type: object
+    properties:
+      error:
+        type: string
 
 paths:
-    /create_event:
-        post:
-            parameters:
-                - name: event
-                  in: body
-                  schema:
-                    $ref: "#/definitions/event"
-            summary: Creates event
-            responses:
-              '201':
-                description: created successfully
+  /create_event:
+    post:
+      parameters:
+        - $ref: "#/parameters/eventTitle"
+        - $ref: "#/parameters/eventDescription"
+        - $ref: "#/parameters/eventStart"
+        - $ref: "#/parameters/eventEnd"
+      summary: Creates event
+      responses:
+        '201':
+          description: Created successfully
+        '400':
+          description: Failed to create event
+          schema:
+            $ref: '#/definitions/error'
         

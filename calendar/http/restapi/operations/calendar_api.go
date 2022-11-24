@@ -38,7 +38,7 @@ func NewCalendarAPI(spec *loads.Document) *CalendarAPI {
 		APIKeyAuthenticator: security.APIKeyAuth,
 		BearerAuthenticator: security.BearerAuth,
 
-		JSONConsumer: runtime.JSONConsumer(),
+		UrlformConsumer: runtime.DiscardConsumer,
 
 		JSONProducer: runtime.JSONProducer(),
 
@@ -73,9 +73,9 @@ type CalendarAPI struct {
 	// It has a default implementation in the security package, however you can replace it for your particular usage.
 	BearerAuthenticator func(string, security.ScopedTokenAuthentication) runtime.Authenticator
 
-	// JSONConsumer registers a consumer for the following mime types:
-	//   - application/json
-	JSONConsumer runtime.Consumer
+	// UrlformConsumer registers a consumer for the following mime types:
+	//   - application/x-www-form-urlencoded
+	UrlformConsumer runtime.Consumer
 
 	// JSONProducer registers a producer for the following mime types:
 	//   - application/json
@@ -152,8 +152,8 @@ func (o *CalendarAPI) RegisterFormat(name string, format strfmt.Format, validato
 func (o *CalendarAPI) Validate() error {
 	var unregistered []string
 
-	if o.JSONConsumer == nil {
-		unregistered = append(unregistered, "JSONConsumer")
+	if o.UrlformConsumer == nil {
+		unregistered = append(unregistered, "UrlformConsumer")
 	}
 
 	if o.JSONProducer == nil {
@@ -192,8 +192,8 @@ func (o *CalendarAPI) ConsumersFor(mediaTypes []string) map[string]runtime.Consu
 	result := make(map[string]runtime.Consumer, len(mediaTypes))
 	for _, mt := range mediaTypes {
 		switch mt {
-		case "application/json":
-			result["application/json"] = o.JSONConsumer
+		case "application/x-www-form-urlencoded":
+			result["application/x-www-form-urlencoded"] = o.UrlformConsumer
 		}
 
 		if c, ok := o.customConsumers[mt]; ok {

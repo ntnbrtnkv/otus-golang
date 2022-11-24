@@ -19,7 +19,7 @@ var (
 func init() {
 	SwaggerJSON = json.RawMessage([]byte(`{
   "consumes": [
-    "application/json"
+    "application/x-www-form-urlencoded"
   ],
   "produces": [
     "application/json"
@@ -39,24 +39,49 @@ func init() {
         "summary": "Creates event",
         "parameters": [
           {
-            "name": "event",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/event"
-            }
+            "$ref": "#/parameters/eventTitle"
+          },
+          {
+            "$ref": "#/parameters/eventDescription"
+          },
+          {
+            "$ref": "#/parameters/eventStart"
+          },
+          {
+            "$ref": "#/parameters/eventEnd"
           }
         ],
         "responses": {
           "201": {
-            "description": "created successfully"
+            "description": "Created successfully"
+          },
+          "400": {
+            "description": "Failed to create event",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
           }
         }
       }
     }
   },
   "definitions": {
+    "error": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string"
+        }
+      }
+    },
     "event": {
       "type": "object",
+      "required": [
+        "title",
+        "description",
+        "time_end",
+        "time_start"
+      ],
       "properties": {
         "description": {
           "type": "string"
@@ -77,12 +102,40 @@ func init() {
           "type": "string"
         }
       }
+    }
+  },
+  "parameters": {
+    "eventDescription": {
+      "type": "string",
+      "name": "description",
+      "in": "formData",
+      "required": true
+    },
+    "eventEnd": {
+      "type": "string",
+      "format": "date-time",
+      "name": "time_end",
+      "in": "formData",
+      "required": true
+    },
+    "eventStart": {
+      "type": "string",
+      "format": "date-time",
+      "name": "time_start",
+      "in": "formData",
+      "required": true
+    },
+    "eventTitle": {
+      "type": "string",
+      "name": "title",
+      "in": "formData",
+      "required": true
     }
   }
 }`))
 	FlatSwaggerJSON = json.RawMessage([]byte(`{
   "consumes": [
-    "application/json"
+    "application/x-www-form-urlencoded"
   ],
   "produces": [
     "application/json"
@@ -102,24 +155,63 @@ func init() {
         "summary": "Creates event",
         "parameters": [
           {
-            "name": "event",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/event"
-            }
+            "type": "string",
+            "name": "title",
+            "in": "formData",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "description",
+            "in": "formData",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "name": "time_start",
+            "in": "formData",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "name": "time_end",
+            "in": "formData",
+            "required": true
           }
         ],
         "responses": {
           "201": {
-            "description": "created successfully"
+            "description": "Created successfully"
+          },
+          "400": {
+            "description": "Failed to create event",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
           }
         }
       }
     }
   },
   "definitions": {
+    "error": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string"
+        }
+      }
+    },
     "event": {
       "type": "object",
+      "required": [
+        "title",
+        "description",
+        "time_end",
+        "time_start"
+      ],
       "properties": {
         "description": {
           "type": "string"
@@ -140,6 +232,34 @@ func init() {
           "type": "string"
         }
       }
+    }
+  },
+  "parameters": {
+    "eventDescription": {
+      "type": "string",
+      "name": "description",
+      "in": "formData",
+      "required": true
+    },
+    "eventEnd": {
+      "type": "string",
+      "format": "date-time",
+      "name": "time_end",
+      "in": "formData",
+      "required": true
+    },
+    "eventStart": {
+      "type": "string",
+      "format": "date-time",
+      "name": "time_start",
+      "in": "formData",
+      "required": true
+    },
+    "eventTitle": {
+      "type": "string",
+      "name": "title",
+      "in": "formData",
+      "required": true
     }
   }
 }`))

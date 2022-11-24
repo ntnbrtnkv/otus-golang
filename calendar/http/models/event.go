@@ -20,27 +20,35 @@ import (
 type Event struct {
 
 	// description
-	Description string `json:"description,omitempty"`
+	// Required: true
+	Description *string `json:"description"`
 
 	// id
 	// Read Only: true
 	ID string `json:"id,omitempty"`
 
 	// time end
+	// Required: true
 	// Format: date-time
-	TimeEnd strfmt.DateTime `json:"time_end,omitempty"`
+	TimeEnd *strfmt.DateTime `json:"time_end"`
 
 	// time start
+	// Required: true
 	// Format: date-time
-	TimeStart strfmt.DateTime `json:"time_start,omitempty"`
+	TimeStart *strfmt.DateTime `json:"time_start"`
 
 	// title
-	Title string `json:"title,omitempty"`
+	// Required: true
+	Title *string `json:"title"`
 }
 
 // Validate validates this event
 func (m *Event) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.validateDescription(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.validateTimeEnd(formats); err != nil {
 		res = append(res, err)
@@ -50,15 +58,29 @@ func (m *Event) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateTitle(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
 }
 
+func (m *Event) validateDescription(formats strfmt.Registry) error {
+
+	if err := validate.Required("description", "body", m.Description); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *Event) validateTimeEnd(formats strfmt.Registry) error {
-	if swag.IsZero(m.TimeEnd) { // not required
-		return nil
+
+	if err := validate.Required("time_end", "body", m.TimeEnd); err != nil {
+		return err
 	}
 
 	if err := validate.FormatOf("time_end", "body", "date-time", m.TimeEnd.String(), formats); err != nil {
@@ -69,11 +91,21 @@ func (m *Event) validateTimeEnd(formats strfmt.Registry) error {
 }
 
 func (m *Event) validateTimeStart(formats strfmt.Registry) error {
-	if swag.IsZero(m.TimeStart) { // not required
-		return nil
+
+	if err := validate.Required("time_start", "body", m.TimeStart); err != nil {
+		return err
 	}
 
 	if err := validate.FormatOf("time_start", "body", "date-time", m.TimeStart.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Event) validateTitle(formats strfmt.Registry) error {
+
+	if err := validate.Required("title", "body", m.Title); err != nil {
 		return err
 	}
 

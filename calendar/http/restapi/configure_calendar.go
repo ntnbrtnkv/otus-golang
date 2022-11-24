@@ -7,10 +7,10 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/ntnbrtnkv/otus-golang/calendar/http/handlers"
 	"github.com/ntnbrtnkv/otus-golang/calendar/logger"
+	"github.com/ntnbrtnkv/otus-golang/calendar/storage/inmemory"
 	"net/http"
 
 	"github.com/go-openapi/errors"
-	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 
 	"github.com/ntnbrtnkv/otus-golang/calendar/http/restapi/operations"
@@ -18,8 +18,19 @@ import (
 
 //go:generate swagger generate server --target ..\..\http --name Calendar --spec ..\..\docs\swagger.yml --principal interface{}
 
+var options struct {
+	LogLevel string `long:"log-level" description:"logging level" default:"info"`
+	LogFile  string `long:"log-file" description:"logging to file" default:"logs.txt"`
+}
+
 func configureFlags(api *operations.CalendarAPI) {
-	api.CommandLineOptionsGroups = []swag.CommandLineOptionsGroup{}
+	api.CommandLineOptionsGroups = []swag.CommandLineOptionsGroup{
+		{
+			ShortDescription: "Logging options",
+			LongDescription:  "",
+			Options:          &options,
+		},
+	}
 }
 
 func configureAPI(api *operations.CalendarAPI) http.Handler {
@@ -33,21 +44,23 @@ func configureAPI(api *operations.CalendarAPI) http.Handler {
 	// api.Logger = log.Printf
 
 	log := logger.InitLogger(logger.Config{
-		LogFile:  "log.txt",
-		LogLevel: "info",
+		LogFile:  options.LogFile,
+		LogLevel: options.LogLevel,
 	})
 
 	api.Logger = log.Infof
+
+	storage := inmemory.InMemoryStorage{}
 
 	api.UseSwaggerUI()
 	// To continue using redoc as your UI, uncomment the following line
 	// api.UseRedoc()
 
-	api.JSONConsumer = runtime.JSONConsumer()
+	//api.UrlformConsumer = runtime.JSONConsumer()
+	//
+	//api.JSONProducer = runtime.JSONProducer()
 
-	api.JSONProducer = runtime.JSONProducer()
-
-	api.PostCreateEventHandler = handlers.NewCreateEventHandler(log)
+	api.PostCreateEventHandler = handlers.NewCreateEventHandler(log, &storage)
 
 	if api.PostCreateEventHandler == nil {
 		api.PostCreateEventHandler = operations.PostCreateEventHandlerFunc(func(params operations.PostCreateEventParams) middleware.Responder {
