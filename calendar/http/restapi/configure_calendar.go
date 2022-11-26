@@ -11,8 +11,6 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/errors"
-	"github.com/go-openapi/runtime/middleware"
-
 	"github.com/ntnbrtnkv/otus-golang/calendar/http/restapi/operations"
 )
 
@@ -50,7 +48,7 @@ func configureAPI(api *operations.CalendarAPI) http.Handler {
 
 	api.Logger = log.Infof
 
-	storage := inmemory.InMemoryStorage{}
+	storage := &inmemory.InMemoryStorage{}
 
 	api.UseSwaggerUI()
 	// To continue using redoc as your UI, uncomment the following line
@@ -60,13 +58,17 @@ func configureAPI(api *operations.CalendarAPI) http.Handler {
 	//
 	//api.JSONProducer = runtime.JSONProducer()
 
-	api.PostCreateEventHandler = handlers.NewCreateEventHandler(log, &storage)
+	api.PostCreateEventHandler = handlers.NewCreateEventHandler(log, storage)
 
-	if api.PostCreateEventHandler == nil {
-		api.PostCreateEventHandler = operations.PostCreateEventHandlerFunc(func(params operations.PostCreateEventParams) middleware.Responder {
-			return middleware.NotImplemented("operation operations.PostCreateEvent has not yet been implemented")
-		})
-	}
+	api.PostUpdateEventHandler = handlers.NewUpdateEventHandler(log, storage)
+
+	api.PostDeleteEventHandler = handlers.NewDeleteEventHandler(log, storage)
+
+	api.GetEventsForDayHandler = handlers.NewGetEventsForDayHandler(log, storage)
+
+	api.GetEventsForWeekHandler = handlers.NewGetEventsForWeekHandler(log, storage)
+
+	api.GetEventsForMonthHandler = handlers.NewGetEventsForMonthHandler(log, storage)
 
 	api.PreServerShutdown = func() {}
 

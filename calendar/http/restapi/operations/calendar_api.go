@@ -42,8 +42,23 @@ func NewCalendarAPI(spec *loads.Document) *CalendarAPI {
 
 		JSONProducer: runtime.JSONProducer(),
 
+		GetEventsForDayHandler: GetEventsForDayHandlerFunc(func(params GetEventsForDayParams) middleware.Responder {
+			return middleware.NotImplemented("operation GetEventsForDay has not yet been implemented")
+		}),
+		GetEventsForMonthHandler: GetEventsForMonthHandlerFunc(func(params GetEventsForMonthParams) middleware.Responder {
+			return middleware.NotImplemented("operation GetEventsForMonth has not yet been implemented")
+		}),
+		GetEventsForWeekHandler: GetEventsForWeekHandlerFunc(func(params GetEventsForWeekParams) middleware.Responder {
+			return middleware.NotImplemented("operation GetEventsForWeek has not yet been implemented")
+		}),
 		PostCreateEventHandler: PostCreateEventHandlerFunc(func(params PostCreateEventParams) middleware.Responder {
 			return middleware.NotImplemented("operation PostCreateEvent has not yet been implemented")
+		}),
+		PostDeleteEventHandler: PostDeleteEventHandlerFunc(func(params PostDeleteEventParams) middleware.Responder {
+			return middleware.NotImplemented("operation PostDeleteEvent has not yet been implemented")
+		}),
+		PostUpdateEventHandler: PostUpdateEventHandlerFunc(func(params PostUpdateEventParams) middleware.Responder {
+			return middleware.NotImplemented("operation PostUpdateEvent has not yet been implemented")
 		}),
 	}
 }
@@ -81,8 +96,18 @@ type CalendarAPI struct {
 	//   - application/json
 	JSONProducer runtime.Producer
 
+	// GetEventsForDayHandler sets the operation handler for the get events for day operation
+	GetEventsForDayHandler GetEventsForDayHandler
+	// GetEventsForMonthHandler sets the operation handler for the get events for month operation
+	GetEventsForMonthHandler GetEventsForMonthHandler
+	// GetEventsForWeekHandler sets the operation handler for the get events for week operation
+	GetEventsForWeekHandler GetEventsForWeekHandler
 	// PostCreateEventHandler sets the operation handler for the post create event operation
 	PostCreateEventHandler PostCreateEventHandler
+	// PostDeleteEventHandler sets the operation handler for the post delete event operation
+	PostDeleteEventHandler PostDeleteEventHandler
+	// PostUpdateEventHandler sets the operation handler for the post update event operation
+	PostUpdateEventHandler PostUpdateEventHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -160,8 +185,23 @@ func (o *CalendarAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
+	if o.GetEventsForDayHandler == nil {
+		unregistered = append(unregistered, "GetEventsForDayHandler")
+	}
+	if o.GetEventsForMonthHandler == nil {
+		unregistered = append(unregistered, "GetEventsForMonthHandler")
+	}
+	if o.GetEventsForWeekHandler == nil {
+		unregistered = append(unregistered, "GetEventsForWeekHandler")
+	}
 	if o.PostCreateEventHandler == nil {
 		unregistered = append(unregistered, "PostCreateEventHandler")
+	}
+	if o.PostDeleteEventHandler == nil {
+		unregistered = append(unregistered, "PostDeleteEventHandler")
+	}
+	if o.PostUpdateEventHandler == nil {
+		unregistered = append(unregistered, "PostUpdateEventHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -251,10 +291,30 @@ func (o *CalendarAPI) initHandlerCache() {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
 
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/events_for_day"] = NewGetEventsForDay(o.context, o.GetEventsForDayHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/events_for_month"] = NewGetEventsForMonth(o.context, o.GetEventsForMonthHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/events_for_week"] = NewGetEventsForWeek(o.context, o.GetEventsForWeekHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/create_event"] = NewPostCreateEvent(o.context, o.PostCreateEventHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/delete_event"] = NewPostDeleteEvent(o.context, o.PostDeleteEventHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/update_event"] = NewPostUpdateEvent(o.context, o.PostUpdateEventHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP

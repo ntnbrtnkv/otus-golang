@@ -33,6 +33,7 @@ func init() {
     "title": "Calendar server",
     "version": "1.0.0"
   },
+  "host": "localhost:1234",
   "paths": {
     "/create_event": {
       "post": {
@@ -57,6 +58,126 @@ func init() {
           },
           "400": {
             "description": "Failed to create event",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/delete_event": {
+      "post": {
+        "summary": "Delete event",
+        "parameters": [
+          {
+            "$ref": "#/parameters/eventID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted successfully"
+          },
+          "400": {
+            "description": "Failed to delete event",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/events_for_day": {
+      "get": {
+        "summary": "Show events for day",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "date",
+            "name": "day",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of events",
+            "schema": {
+              "$ref": "#/definitions/events"
+            }
+          }
+        }
+      }
+    },
+    "/events_for_month": {
+      "get": {
+        "summary": "Show events for month",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "date",
+            "name": "month",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of events",
+            "schema": {
+              "$ref": "#/definitions/events"
+            }
+          }
+        }
+      }
+    },
+    "/events_for_week": {
+      "get": {
+        "summary": "Show events for week",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "date",
+            "name": "week",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of events",
+            "schema": {
+              "$ref": "#/definitions/events"
+            }
+          }
+        }
+      }
+    },
+    "/update_event": {
+      "post": {
+        "summary": "Update event",
+        "parameters": [
+          {
+            "$ref": "#/parameters/eventID"
+          },
+          {
+            "$ref": "#/parameters/eventTitle"
+          },
+          {
+            "$ref": "#/parameters/eventDescription"
+          },
+          {
+            "$ref": "#/parameters/eventStart"
+          },
+          {
+            "$ref": "#/parameters/eventEnd"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated successfully"
+          },
+          "400": {
+            "description": "Failed to update event",
             "schema": {
               "$ref": "#/definitions/error"
             }
@@ -102,6 +223,17 @@ func init() {
           "type": "string"
         }
       }
+    },
+    "events": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/event"
+          }
+        }
+      }
     }
   },
   "parameters": {
@@ -115,6 +247,12 @@ func init() {
       "type": "string",
       "format": "date-time",
       "name": "time_end",
+      "in": "formData",
+      "required": true
+    },
+    "eventID": {
+      "type": "string",
+      "name": "id",
       "in": "formData",
       "required": true
     },
@@ -149,6 +287,7 @@ func init() {
     "title": "Calendar server",
     "version": "1.0.0"
   },
+  "host": "localhost:1234",
   "paths": {
     "/create_event": {
       "post": {
@@ -193,6 +332,146 @@ func init() {
           }
         }
       }
+    },
+    "/delete_event": {
+      "post": {
+        "summary": "Delete event",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "id",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted successfully"
+          },
+          "400": {
+            "description": "Failed to delete event",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/events_for_day": {
+      "get": {
+        "summary": "Show events for day",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "date",
+            "name": "day",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of events",
+            "schema": {
+              "$ref": "#/definitions/events"
+            }
+          }
+        }
+      }
+    },
+    "/events_for_month": {
+      "get": {
+        "summary": "Show events for month",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "date",
+            "name": "month",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of events",
+            "schema": {
+              "$ref": "#/definitions/events"
+            }
+          }
+        }
+      }
+    },
+    "/events_for_week": {
+      "get": {
+        "summary": "Show events for week",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "date",
+            "name": "week",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of events",
+            "schema": {
+              "$ref": "#/definitions/events"
+            }
+          }
+        }
+      }
+    },
+    "/update_event": {
+      "post": {
+        "summary": "Update event",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "id",
+            "in": "formData",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "title",
+            "in": "formData",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "description",
+            "in": "formData",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "name": "time_start",
+            "in": "formData",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "name": "time_end",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated successfully"
+          },
+          "400": {
+            "description": "Failed to update event",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -232,6 +511,17 @@ func init() {
           "type": "string"
         }
       }
+    },
+    "events": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/event"
+          }
+        }
+      }
     }
   },
   "parameters": {
@@ -245,6 +535,12 @@ func init() {
       "type": "string",
       "format": "date-time",
       "name": "time_end",
+      "in": "formData",
+      "required": true
+    },
+    "eventID": {
+      "type": "string",
+      "name": "id",
       "in": "formData",
       "required": true
     },

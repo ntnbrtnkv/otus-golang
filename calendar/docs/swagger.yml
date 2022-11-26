@@ -9,9 +9,15 @@ produces:
   - application/json
 schemes:
   - http
+host: localhost:1234
 swagger: "2.0"
 
 parameters:
+  eventID:
+    name: id
+    in: formData
+    type: string
+    required: true
   eventTitle:
     name: title
     in: formData
@@ -57,6 +63,13 @@ definitions:
       time_end:
         type: string
         format: date-time
+  events:
+    type: object
+    properties:
+      result:
+        type: array
+        items:
+          $ref: '#/definitions/event'
   error:
     type: object
     properties:
@@ -79,4 +92,73 @@ paths:
           description: Failed to create event
           schema:
             $ref: '#/definitions/error'
-        
+  /update_event:
+    post:
+      parameters:
+        - $ref: "#/parameters/eventID"
+        - $ref: "#/parameters/eventTitle"
+        - $ref: "#/parameters/eventDescription"
+        - $ref: "#/parameters/eventStart"
+        - $ref: "#/parameters/eventEnd"
+      summary: Update event
+      responses:
+        '200':
+          description: Updated successfully
+        '400':
+          description: Failed to update event
+          schema:
+            $ref: '#/definitions/error'
+  /delete_event:
+    post:
+      parameters:
+        - $ref: "#/parameters/eventID"
+      summary: Delete event
+      responses:
+        '200':
+          description: Deleted successfully
+        '400':
+          description: Failed to delete event
+          schema:
+            $ref: '#/definitions/error'
+  /events_for_day:
+    get:
+      summary: Show events for day
+      parameters:
+        - name: day
+          in: query
+          type: string
+          format: date
+          required: true
+      responses:
+        '200':
+          description: List of events
+          schema:
+            $ref: '#/definitions/events'
+  /events_for_week:
+    get:
+      summary: Show events for week
+      parameters:
+        - name: week
+          in: query
+          type: string
+          format: date
+          required: true
+      responses:
+        '200':
+          description: List of events
+          schema:
+            $ref: '#/definitions/events'
+  /events_for_month:
+    get:
+      summary: Show events for month
+      parameters:
+        - name: month
+          in: query
+          type: string
+          format: date
+          required: true
+      responses:
+        '200':
+          description: List of events
+          schema:
+            $ref: '#/definitions/events'
