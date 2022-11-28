@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "github.com/ntnbrtnkv/otus-golang/calendar;grpc_gen";
+
+message Result {
+    bool ok = 1;
+    string error = 2;
+}
+
+message Event {
+    string ID = 1;
+    string Title = 2;
+	string Description  = 3;
+	google.protobuf.Timestamp TimeStart = 4;
+	google.protobuf.Timestamp TimeEnd = 5;	
+}
+
+message Events {
+    repeated Event events = 1; 
+}
+
+message IDEventMessage {
+    string ID = 1;
+}
+
+service Calendar {
+    rpc AddEvent (Event) returns (Result);
+	rpc RemoveEvent (IDEventMessage) returns (Result);
+	rpc ChangeEvent (Event) returns (Result);
+	rpc ListEvents (google.protobuf.Empty) returns (Events);
+}
