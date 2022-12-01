@@ -4,11 +4,17 @@ package restapi
 
 import (
 	"crypto/tls"
+	"fmt"
+	"net/http"
+
 	"github.com/go-openapi/swag"
+	"github.com/jmoiron/sqlx"
 	"github.com/ntnbrtnkv/otus-golang/calendar/http/handlers"
 	"github.com/ntnbrtnkv/otus-golang/calendar/logger"
-	"github.com/ntnbrtnkv/otus-golang/calendar/storage/inmemory"
-	"net/http"
+	"github.com/ntnbrtnkv/otus-golang/calendar/storage/db"
+	"go.uber.org/zap"
+
+	_ "github.com/lib/pq"
 
 	"github.com/go-openapi/errors"
 	"github.com/ntnbrtnkv/otus-golang/calendar/http/restapi/operations"
@@ -16,19 +22,40 @@ import (
 
 //go:generate swagger generate server --target ..\..\http --name Calendar --spec ..\..\docs\swagger.yml --principal interface{}
 
-var options struct {
-	LogLevel string `long:"log-level" description:"logging level" default:"info"`
+var lOptions struct {
+	LogLevel string `long:"log-level" description:"losgging level" default:"info"`
 	LogFile  string `long:"log-file" description:"logging to file" default:"logs.txt"`
+}
+
+var dbOptions struct {
+	DSN string `long:"dsn" description:"Connection string to PostgreSQL" default:"postgres://postgres:example@localhost/calendar?sslmode=disable"`
 }
 
 func configureFlags(api *operations.CalendarAPI) {
 	api.CommandLineOptionsGroups = []swag.CommandLineOptionsGroup{
 		{
+			ShortDescription: "DB options",
+			LongDescription:  "",
+			Options:          &dbOptions,
+		},
+		{
 			ShortDescription: "Logging options",
 			LongDescription:  "",
-			Options:          &options,
+			Options:          &lOptions,
 		},
 	}
+}
+
+func initDBConnection(dsn string, logger *zap.SugaredLogger) (*db.CalendarDBStorage, error) {
+	DB, err := sqlx.Connect("postgres", dsn)
+	if err != nil {
+		return nil, fmt.Errorf("failed init connection. Error: %s", err)
+	}
+	DB.SetMaxOpenConns(6)
+	DB.SetMaxIdleConns(4)
+	DB.SetConnMaxLifetime(0)
+	st := db.NewCalendarDBStorage(DB, logger)
+	return st, nil
 }
 
 func configureAPI(api *operations.CalendarAPI) http.Handler {
@@ -42,13 +69,17 @@ func configureAPI(api *operations.CalendarAPI) http.Handler {
 	// api.Logger = log.Printf
 
 	log := logger.InitLogger(logger.Config{
-		LogFile:  options.LogFile,
-		LogLevel: options.LogLevel,
+		LogFile:  lOptions.LogFile,
+		LogLevel: lOptions.LogLevel,
 	})
 
 	api.Logger = log.Infof
 
-	storage := &inmemory.InMemoryStorage{}
+	storage, err := initDBConnection(dbOptions.DSN, log)
+
+	if err != nil {
+		log.Panic(err)
+	}
 
 	api.UseSwaggerUI()
 	// To continue using redoc as your UI, uncomment the following line
